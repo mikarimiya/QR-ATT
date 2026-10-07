@@ -364,11 +364,12 @@ const styles = StyleSheet.create({
   },
 
   welcomeSection: {
+    alignItems: 'center',
     marginBottom: 20,
   },
 
   welcomeBadge: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     backgroundColor: COLORS.secondary,
     paddingHorizontal: 11,
     paddingVertical: 6,
@@ -388,12 +389,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.textPrimary,
     marginBottom: 5,
+    textAlign: 'center',
   },
 
   subtitle: {
     fontSize: 14,
     lineHeight: 21,
     color: COLORS.textSecondary,
+    textAlign: 'center',
   },
 
   formCard: {
@@ -637,4 +640,3 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 });
-

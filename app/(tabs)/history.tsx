@@ -200,8 +200,6 @@ export default function HistoryScreen() {
                     <Text style={styles.tapHint}>
                       View attendance details
                     </Text>
-
-                    <Text style={styles.arrow}>→</Text>
                   </View>
                 </Pressable>
               );
@@ -521,12 +519,6 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
   },
 
-  arrow: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: COLORS.textOnPrimary,
-  },
-
   studentCardTop: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -599,4 +591,3 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
-

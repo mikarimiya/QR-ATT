@@ -81,13 +81,15 @@ export default function Index() {
         </View>
 
         <View style={styles.bodyContainer}>
-          <Text style={styles.mainTitle}>
-            School Event Attendance
-          </Text>
+          <View style={styles.introSection}>
+            <Text style={styles.mainTitle}>
+              School Event Attendance
+            </Text>
 
-          <Text style={styles.subtitle}>
-            View available events and scan their QR codes to record attendance.
-          </Text>
+            <Text style={styles.subtitle}>
+              View available events and scan their QR codes to record attendance.
+            </Text>
+          </View>
 
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
@@ -222,19 +224,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  introSection: {
+    alignItems: 'center',
+    marginBottom: 26,
+  },
+
   mainTitle: {
     fontSize: 26,
     fontWeight: '800',
     color: COLORS.textPrimary,
     marginBottom: 8,
     letterSpacing: -0.4,
+    textAlign: 'center',
   },
 
   subtitle: {
     fontSize: 14,
     lineHeight: 21,
     color: COLORS.textSecondary,
-    marginBottom: 26,
+    textAlign: 'center',
   },
 
   sectionHeader: {
@@ -383,4 +391,3 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 });
-

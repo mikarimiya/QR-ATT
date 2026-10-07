@@ -94,6 +94,7 @@ export default function ProfileScreen() {
     >
       <View style={styles.headingContainer}>
         <Text style={styles.title}>My Profile</Text>
+
         <Text style={styles.subtitle}>
           Manage your personal information
         </Text>
@@ -210,6 +211,7 @@ const styles = StyleSheet.create({
   },
 
   headingContainer: {
+    alignItems: 'center',
     marginBottom: 22,
   },
 
@@ -218,12 +220,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.textPrimary,
     letterSpacing: -0.4,
+    textAlign: 'center',
   },
 
   subtitle: {
     fontSize: 14,
     color: COLORS.textSecondary,
     marginTop: 5,
+    textAlign: 'center',
   },
 
   infoCard: {
@@ -389,4 +393,3 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 });
-
