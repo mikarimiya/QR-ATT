@@ -1,45 +1,196 @@
-import { router } from 'expo-router';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useFocusEffect, router } from 'expo-router';
 
 import AppButton from '@/components/AppButton';
 import Header from '@/components/Header';
 import { COLORS } from '@/constants/colors';
+import { CloudEvent, getAvailableEvents } from '@/lib/events';
 
 export default function Index() {
+  const [events, setEvents] = useState<CloudEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadEvents = useCallback(async () => {
+    const availableEvents = await getAvailableEvents();
+    setEvents(availableEvents);
+    setLoading(false);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadEvents();
+    }, [loadEvents])
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadEvents();
+    setRefreshing(false);
+  };
+
+  const formatDateTime = (value: string | null) => {
+    if (!value) {
+      return 'No schedule set';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return date.toLocaleString();
+  };
+
+  const handleEventPress = (event: CloudEvent) => {
+    router.push({
+      pathname: '/event-details',
+      params: {
+        eventId: event.id,
+      },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.mainContent}>
-  <View style={styles.headerContainer}>
-    <Header title="QR Attendance" />
-    <Text style={styles.byline}>by: Micah G. Manijas</Text>
-  </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={COLORS.primary}
+          />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerContainer}>
+          <Header title="QR Attendance" />
+          <Text style={styles.byline}>by: Micah G. Manijas</Text>
+        </View>
 
-  <View style={styles.bodyContainer}>
-    <Text style={styles.mainTitle}>School Event Attendance</Text>
-    <Text style={styles.subtitle}>
-      Scan QR Codes to record attendance during school activities.
-    </Text>
-  </View>
-</View>
+        <View style={styles.bodyContainer}>
+          <Text style={styles.mainTitle}>
+            School Event Attendance
+          </Text>
 
-      <View style={styles.footerContainer}>
-        <AppButton
-          theme="primary"
-          title="Scan QR Code"
-          icon="qr-code-outline"
-          onPress={() => router.push('/scan')}
-        />
-        <AppButton
-          title="Attendance History"
-          icon="time-outline"
-          onPress={() => router.push('/history')}
-        />
-        <AppButton
-          title="Profile"
-          icon="person-outline"
-          onPress={() => router.push('/profile')}
-        />
-      </View>
+          <Text style={styles.subtitle}>
+            View available events and scan their QR codes to record attendance.
+          </Text>
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              Available Events
+            </Text>
+
+            <View style={styles.sectionAccent} />
+          </View>
+
+          {loading ? (
+            <View style={styles.centerContainer}>
+              <ActivityIndicator
+                size="small"
+                color={COLORS.primary}
+              />
+
+              <Text style={styles.statusText}>
+                Loading events...
+              </Text>
+            </View>
+          ) : events.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyTitle}>
+                No events available
+              </Text>
+
+              <Text style={styles.emptyText}>
+                There are currently no school events available.
+              </Text>
+            </View>
+          ) : (
+            events.map((event) => (
+              <Pressable
+                key={event.id}
+                onPress={() => handleEventPress(event)}
+                style={({ pressed }) => [
+                  styles.eventCard,
+                  pressed && styles.eventCardPressed,
+                ]}
+              >
+                <View style={styles.eventHeader}>
+                  <View style={styles.eventAccent} />
+
+                  <Text style={styles.eventTitle}>
+                    {event.title}
+                  </Text>
+                </View>
+
+                <View style={styles.scheduleContainer}>
+                  <View style={styles.scheduleItem}>
+                    <Text style={styles.eventLabel}>
+                      START
+                    </Text>
+
+                    <Text style={styles.eventInfo}>
+                      {formatDateTime(event.start_time)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.scheduleDivider} />
+
+                  <View style={styles.scheduleItem}>
+                    <Text style={styles.eventLabel}>
+                      END
+                    </Text>
+
+                    <Text style={styles.eventInfo}>
+                      {formatDateTime(event.end_time)}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.cardFooter}>
+                  <Text style={styles.tapHint}>
+                    Tap to view event details
+                  </Text>
+                </View>
+              </Pressable>
+            ))
+          )}
+        </View>
+
+        <View style={styles.footerContainer}>
+          <AppButton
+            theme="primary"
+            title="Scan QR Code"
+            icon="qr-code-outline"
+            onPress={() => router.push('/scan')}
+          />
+
+          <AppButton
+            title="Attendance History"
+            icon="time-outline"
+            onPress={() => router.push('/history')}
+          />
+
+          <AppButton
+            title="Profile"
+            icon="person-outline"
+            onPress={() => router.push('/profile')}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -50,47 +201,186 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
 
-  mainContent: {
-    flex: 1,
-    justifyContent: 'center',
-    width: '100%',
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingVertical: 24,
   },
 
   headerContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 48,
+    marginBottom: 30,
   },
 
   byline: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.textSecondary,
+    textAlign: 'center',
     marginTop: 4,
   },
 
   bodyContainer: {
-    alignItems: 'flex-start',
+    flex: 1,
   },
 
   mainTitle: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '800',
     color: COLORS.textPrimary,
-    marginBottom: 6,
-    textAlign: 'left',
+    marginBottom: 8,
+    letterSpacing: -0.4,
   },
 
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 21,
     color: COLORS.textSecondary,
-    textAlign: 'left',
+    marginBottom: 26,
+  },
+
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+
+  sectionTitle: {
+    fontSize: 19,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+
+  sectionAccent: {
+    width: 28,
+    height: 4,
+    borderRadius: 4,
+    backgroundColor: COLORS.accent,
+    marginLeft: 10,
+  },
+
+  eventCard: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 7,
+    elevation: 4,
+  },
+
+  eventCardPressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.985 }],
+  },
+
+  eventHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+
+  eventAccent: {
+    width: 5,
+    height: 38,
+    borderRadius: 5,
+    backgroundColor: COLORS.accent,
+    marginRight: 12,
+  },
+
+  eventTitle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '800',
+    color: COLORS.textOnPrimary,
+    lineHeight: 24,
+  },
+
+  scheduleContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(250, 246, 237, 0.08)',
+    borderRadius: 12,
+    padding: 13,
+    marginBottom: 16,
+  },
+
+  scheduleItem: {
+    flex: 1,
+  },
+
+  scheduleDivider: {
+    width: 1,
+    backgroundColor: 'rgba(197, 168, 128, 0.5)',
+    marginHorizontal: 10,
+  },
+
+  eventLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.accent,
+    letterSpacing: 1,
+    marginBottom: 5,
+  },
+
+  eventInfo: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: COLORS.textOnPrimary,
+  },
+
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+
+  tapHint: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.accent,
+  },
+
+  centerContainer: {
+    alignItems: 'center',
+    paddingVertical: 24,
+  },
+
+  statusText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 8,
+  },
+
+  emptyContainer: {
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+  },
+
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 6,
+  },
+
+  emptyText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.textSecondary,
   },
 
   footerContainer: {
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 8,
+    paddingTop: 20,
     width: '100%',
+    gap: 10,
   },
 });
+

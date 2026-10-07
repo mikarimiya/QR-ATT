@@ -66,6 +66,14 @@ export async function registerAttendance(
   const foundEvent = await getEventByCode(payload.event);
 
   if (foundEvent) {
+    if (foundEvent.status === 'closed') {
+      return {
+        success: false,
+        message: 'This event is closed. Attendance is no longer available.',
+        eventTitle: foundEvent.title,
+      };
+    }
+
     event = {
       id: foundEvent.id,
       title: foundEvent.title,
@@ -95,6 +103,7 @@ export async function registerAttendance(
     {
       student_id: studentId,
       event_id: event.id,
+      status: 'present',
     },
   ]);
 
@@ -150,6 +159,7 @@ export async function getTeacherEventAttendance(
   if (eventError || !events) return [];
 
   const eventIds = events.map((e: any) => e.id);
+
   if (eventIds.length === 0) return [];
 
   const { data: attendance, error: attError } = await supabase
@@ -212,4 +222,17 @@ export async function getTeacherEventSummary(
     title: e.title,
     attendeeCount: counts[e.id] ?? 0,
   }));
+}
+
+export async function deleteAttendanceRecord(
+  attendanceId: string
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('attendance')
+    .delete()
+    .eq('id', attendanceId);
+
+  return {
+    error: error?.message ?? null,
+  };
 }

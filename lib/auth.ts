@@ -10,27 +10,57 @@ type AuthState = {
 
 let globalSession: Session | null = null;
 let globalUser: User | null = null;
-let globalLoading = false;
+let globalLoading = true;
 let listeners: Set<() => void> = new Set();
 
 function notify() {
-  listeners.forEach((l) => l());
+  listeners.forEach((listener) => listener());
 }
 
-export function setAuth(session: Session | null) {
+function updateAuthState(session: Session | null) {
   globalSession = session;
   globalUser = session?.user ?? null;
   globalLoading = false;
   notify();
 }
 
+let initialized = false;
+
+async function initializeAuth() {
+  if (initialized) return;
+
+  initialized = true;
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  updateAuthState(session);
+}
+
+initializeAuth();
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  updateAuthState(session);
+});
+
+export function setAuth(session: Session | null) {
+  updateAuthState(session);
+}
+
 export function useAuth(): AuthState {
   const [, forceRender] = useState(0);
 
   useEffect(() => {
-    const listener = () => forceRender((n) => n + 1);
+    const listener = () => {
+      forceRender((n) => n + 1);
+    };
+
     listeners.add(listener);
-    return () => { listeners.delete(listener); };
+
+    return () => {
+      listeners.delete(listener);
+    };
   }, []);
 
   return {
@@ -50,7 +80,10 @@ export async function signUp(
   password: string,
   profile?: SignUpProfile
 ) {
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
 
   if (!error && data.session && profile) {
     await supabase
@@ -63,22 +96,33 @@ export async function signUp(
   }
 
   if (!error && data.session) {
-    setAuth(data.session);
+    updateAuthState(data.session);
   }
 
   return { data, error };
 }
 
-export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+export async function signIn(
+  email: string,
+  password: string
+) {
+  const { data, error } =
+    await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
   if (!error && data.session) {
-    setAuth(data.session);
+    updateAuthState(data.session);
   }
+
   return { data, error };
 }
 
 export async function signOut() {
-  setAuth(null);
-  supabase.auth.signOut().catch(() => {});
-  return { error: null };
+  const { error } = await supabase.auth.signOut();
+
+  updateAuthState(null);
+
+  return { error };
 }

@@ -97,132 +97,242 @@ export default function RegisterScreen() {
               <Header title="QR Attendance" />
             </View>
 
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>
-              Register to start recording attendance
-            </Text>
+            <View style={styles.welcomeSection}>
+              <View style={styles.welcomeBadge}>
+                <Text style={styles.welcomeBadgeText}>
+                  GET STARTED
+                </Text>
+              </View>
+
+              <Text style={styles.title}>Create Account</Text>
+
+              <Text style={styles.subtitle}>
+                Register to start recording attendance
+              </Text>
+            </View>
 
             {success ? (
               <View style={styles.successContainer}>
-                <Text style={styles.successTitle}>Check your email!</Text>
+                <View style={styles.successIcon}>
+                  <Text style={styles.successIconText}>✓</Text>
+                </View>
+
+                <View style={styles.successBadge}>
+                  <Text style={styles.successBadgeText}>
+                    VERIFICATION REQUIRED
+                  </Text>
+                </View>
+
+                <Text style={styles.successTitle}>
+                  Check your email!
+                </Text>
+
                 <Text style={styles.successText}>
                   We sent a confirmation link to {email}. Click the link to
                   verify your account, then come back and sign in.
                 </Text>
-                <Link href="/login" style={styles.link}>
+
+                <Link href="/login" style={styles.successLink}>
                   Back to Sign In
                 </Link>
               </View>
             ) : (
-              <View style={styles.form}>
-                <Text style={styles.label}>Full Name</Text>
-                <TextInput
-                  style={styles.input}
-                  value={fullName}
-                  onChangeText={setFullName}
-                  placeholder="Your full name"
-                  placeholderTextColor={COLORS.textSecondary}
-                  autoCapitalize="words"
-                  editable={!loading}
-                />
+              <View style={styles.formCard}>
+                <View style={styles.formHeader}>
+                  <Text style={styles.formTitle}>
+                    Account Details
+                  </Text>
 
-                <Text style={styles.label}>I am a...</Text>
-
-                <View style={styles.roleRow}>
-                  <Pressable
-                    style={[
-                      styles.roleChip,
-                      role === 'student' && styles.roleChipActive,
-                    ]}
-                    onPress={() => setRole('student')}
-                    disabled={loading}
-                  >
-                    <Text
-                      style={[
-                        styles.roleChipText,
-                        role === 'student' && styles.roleChipTextActive,
-                      ]}
-                    >
-                      Student
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={[
-                      styles.roleChip,
-                      role === 'teacher' && styles.roleChipActive,
-                    ]}
-                    onPress={() => setRole('teacher')}
-                    disabled={loading}
-                  >
-                    <Text
-                      style={[
-                        styles.roleChipText,
-                        role === 'teacher' && styles.roleChipTextActive,
-                      ]}
-                    >
-                      Teacher
-                    </Text>
-                  </Pressable>
+                  <Text style={styles.formSubtitle}>
+                    Fill in your information below
+                  </Text>
                 </View>
 
-                <Text style={styles.label}>Email</Text>
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="your.email@school.edu"
-                  placeholderTextColor={COLORS.textSecondary}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  editable={!loading}
-                />
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>FULL NAME</Text>
 
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="At least 6 characters"
-                  placeholderTextColor={COLORS.textSecondary}
-                  secureTextEntry
-                  editable={!loading}
-                />
+                  <TextInput
+                    style={styles.input}
+                    value={fullName}
+                    onChangeText={setFullName}
+                    placeholder="Your full name"
+                    placeholderTextColor={COLORS.textSecondary}
+                    autoCapitalize="words"
+                    editable={!loading}
+                  />
+                </View>
 
-                <Text style={styles.label}>Confirm Password</Text>
-                <TextInput
-                  style={styles.input}
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Re-enter your password"
-                  placeholderTextColor={COLORS.textSecondary}
-                  secureTextEntry
-                  editable={!loading}
-                />
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>I AM A...</Text>
 
-                {error && <Text style={styles.error}>{error}</Text>}
+                  <View style={styles.roleRow}>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.roleChip,
+                        role === 'student' && styles.roleChipActive,
+                        pressed && styles.roleChipPressed,
+                      ]}
+                      onPress={() => setRole('student')}
+                      disabled={loading}
+                    >
+                      <View
+                        style={[
+                          styles.roleIndicator,
+                          role === 'student' &&
+                            styles.roleIndicatorActive,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.roleIndicatorText,
+                            role === 'student' &&
+                              styles.roleIndicatorTextActive,
+                          ]}
+                        >
+                          S
+                        </Text>
+                      </View>
+
+                      <Text
+                        style={[
+                          styles.roleChipText,
+                          role === 'student' &&
+                            styles.roleChipTextActive,
+                        ]}
+                      >
+                        Student
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.roleChip,
+                        role === 'teacher' && styles.roleChipActive,
+                        pressed && styles.roleChipPressed,
+                      ]}
+                      onPress={() => setRole('teacher')}
+                      disabled={loading}
+                    >
+                      <View
+                        style={[
+                          styles.roleIndicator,
+                          role === 'teacher' &&
+                            styles.roleIndicatorActive,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.roleIndicatorText,
+                            role === 'teacher' &&
+                              styles.roleIndicatorTextActive,
+                          ]}
+                        >
+                          T
+                        </Text>
+                      </View>
+
+                      <Text
+                        style={[
+                          styles.roleChipText,
+                          role === 'teacher' &&
+                            styles.roleChipTextActive,
+                        ]}
+                      >
+                        Teacher
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>EMAIL ADDRESS</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="your.email@school.edu"
+                    placeholderTextColor={COLORS.textSecondary}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    editable={!loading}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>PASSWORD</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="At least 6 characters"
+                    placeholderTextColor={COLORS.textSecondary}
+                    secureTextEntry
+                    editable={!loading}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>CONFIRM PASSWORD</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="Re-enter your password"
+                    placeholderTextColor={COLORS.textSecondary}
+                    secureTextEntry
+                    editable={!loading}
+                  />
+                </View>
+
+                {error && (
+                  <View style={styles.errorContainer}>
+                    <Text style={styles.errorTitle}>
+                      Registration failed
+                    </Text>
+
+                    <Text style={styles.error}>
+                      {error}
+                    </Text>
+                  </View>
+                )}
 
                 {loading ? (
-                  <ActivityIndicator
-                    size="large"
-                    color={COLORS.primary}
-                    style={styles.loader}
-                  />
+                  <View style={styles.loaderContainer}>
+                    <ActivityIndicator
+                      size="large"
+                      color={COLORS.primary}
+                    />
+
+                    <Text style={styles.loaderText}>
+                      Creating your account...
+                    </Text>
+                  </View>
                 ) : (
-                  <AppButton
-                    theme="primary"
-                    title="Sign Up"
-                    icon="person-add-outline"
-                    onPress={handleRegister}
-                  />
+                  <View style={styles.buttonContainer}>
+                    <AppButton
+                      theme="primary"
+                      title="Sign Up"
+                      icon="person-add-outline"
+                      onPress={handleRegister}
+                    />
+                  </View>
                 )}
               </View>
             )}
 
             {!success && (
-              <Link href="/login" style={styles.link}>
-                Already have an account? Sign In
-              </Link>
+              <View style={styles.signinContainer}>
+                <Text style={styles.signinText}>
+                  Already have an account?
+                </Text>
+
+                <Link href="/login" style={styles.link}>
+                  Sign In
+                </Link>
+              </View>
             )}
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -236,115 +346,295 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+
   keyboardView: {
     flex: 1,
   },
+
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 40,
   },
+
   headerContainer: {
-    alignItems: 'flex-start',
-    marginTop: 20,
-    marginBottom: 16,
+    alignItems: 'center',
+    marginBottom: 8,
   },
+
+  welcomeSection: {
+    marginBottom: 20,
+  },
+
+  welcomeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.secondary,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 12,
+  },
+
+  welcomeBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: COLORS.card,
+  },
+
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 29,
+    fontWeight: '800',
     color: COLORS.textPrimary,
-    textAlign: 'left',
-    marginBottom: 4,
+    marginBottom: 5,
   },
+
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 21,
     color: COLORS.textSecondary,
-    textAlign: 'left',
-    marginBottom: 32,
   },
-  form: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: 6,
-    marginTop: 10,
-  },
-  input: {
+
+  formCard: {
     backgroundColor: COLORS.card,
-    borderRadius: 10,
+    borderRadius: 22,
+    padding: 22,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+
+  formHeader: {
+    marginBottom: 20,
+  },
+
+  formTitle: {
+    fontSize: 21,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+
+  formSubtitle: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+
+  inputGroup: {
+    marginBottom: 15,
+  },
+
+  label: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.9,
+    color: COLORS.textPrimary,
+    marginBottom: 7,
+  },
+
+  input: {
+    backgroundColor: COLORS.background,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 15,
+    paddingVertical: 14,
+    fontSize: 15,
     color: COLORS.textPrimary,
   },
+
   roleRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 4,
+    gap: 10,
   },
+
   roleChip: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
+    minHeight: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 13,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.card,
-    alignItems: 'center',
+    backgroundColor: COLORS.background,
   },
+
   roleChipActive: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.primary,
   },
+
+  roleChipPressed: {
+    opacity: 0.82,
+  },
+
+  roleIndicator: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    marginRight: 9,
+  },
+
+  roleIndicatorActive: {
+    backgroundColor: COLORS.accent,
+  },
+
+  roleIndicatorText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.primary,
+  },
+
+  roleIndicatorTextActive: {
+    color: COLORS.primary,
+  },
+
   roleChipText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '700',
     color: COLORS.textPrimary,
   },
+
   roleChipTextActive: {
-    color: COLORS.primary,
-    fontWeight: '700',
+    color: COLORS.card,
   },
-  error: {
-    fontSize: 14,
+
+  errorContainer: {
+    backgroundColor: '#F3E1DD',
+    borderWidth: 1,
+    borderColor: COLORS.danger,
+    borderRadius: 13,
+    padding: 12,
+    marginBottom: 8,
+  },
+
+  errorTitle: {
+    fontSize: 12,
+    fontWeight: '800',
     color: COLORS.danger,
-    textAlign: 'left',
-    marginTop: 12,
-    marginBottom: 4,
+    marginBottom: 3,
   },
-  loader: {
-    marginVertical: 16,
+
+  error: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: COLORS.danger,
   },
-  link: {
-    fontSize: 14,
-    color: COLORS.primary,
-    textAlign: 'center',
+
+  loaderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+
+  loaderText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginTop: 8,
   },
+
+  buttonContainer: {
+    marginTop: 4,
+  },
+
+  signinContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+
+  signinText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginRight: 5,
+  },
+
+  link: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '800',
+  },
+
   successContainer: {
-    marginBottom: 24,
-    padding: 20,
     backgroundColor: COLORS.card,
-    borderRadius: 10,
+    borderRadius: 22,
+    padding: 24,
     borderWidth: 1,
     borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 4,
   },
+
+  successIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.secondary,
+    marginBottom: 16,
+  },
+
+  successIconText: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: COLORS.card,
+  },
+
+  successBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginBottom: 12,
+  },
+
+  successBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: COLORS.primary,
+  },
+
   successTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 21,
+    fontWeight: '800',
     color: COLORS.textPrimary,
     marginBottom: 8,
   },
+
   successText: {
     fontSize: 14,
     color: COLORS.textSecondary,
-    textAlign: 'left',
-    lineHeight: 20,
-    marginBottom: 16,
+    lineHeight: 21,
+    marginBottom: 18,
+  },
+
+  successLink: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '800',
   },
 });
+

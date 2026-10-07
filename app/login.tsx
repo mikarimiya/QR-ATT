@@ -63,56 +63,102 @@ export default function LoginScreen() {
               <Header title="QR Attendance" />
             </View>
 
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>
-              Sign in to record your attendance
-            </Text>
+            <View style={styles.welcomeSection}>
+              <View style={styles.welcomeBadge}>
+                <Text style={styles.welcomeBadgeText}>
+                  WELCOME BACK
+                </Text>
+              </View>
 
-            <View style={styles.form}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="your.email@school.edu"
-                placeholderTextColor={COLORS.textSecondary}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                editable={!loading}
-              />
+              <Text style={styles.title}>Welcome Back</Text>
 
-              <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                placeholderTextColor={COLORS.textSecondary}
-                secureTextEntry
-                editable={!loading}
-              />
+              <Text style={styles.subtitle}>
+                Sign in to record your attendance
+              </Text>
+            </View>
 
-              {error && <Text style={styles.error}>{error}</Text>}
+            <View style={styles.formCard}>
+              <View style={styles.formHeader}>
+                <Text style={styles.formTitle}>Sign In</Text>
+
+                <Text style={styles.formSubtitle}>
+                  Enter your account details below
+                </Text>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>EMAIL ADDRESS</Text>
+
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="your.email@school.edu"
+                  placeholderTextColor={COLORS.textSecondary}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!loading}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>PASSWORD</Text>
+
+                <TextInput
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="Enter your password"
+                  placeholderTextColor={COLORS.textSecondary}
+                  secureTextEntry
+                  editable={!loading}
+                />
+              </View>
+
+              {error && (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorTitle}>
+                    Sign in failed
+                  </Text>
+
+                  <Text style={styles.error}>
+                    {error}
+                  </Text>
+                </View>
+              )}
 
               {loading ? (
-                <ActivityIndicator
-                  size="large"
-                  color={COLORS.primary}
-                  style={styles.loader}
-                />
+                <View style={styles.loaderContainer}>
+                  <ActivityIndicator
+                    size="large"
+                    color={COLORS.primary}
+                  />
+
+                  <Text style={styles.loaderText}>
+                    Signing you in...
+                  </Text>
+                </View>
               ) : (
-                <AppButton
-                  theme="primary"
-                  title="Sign In"
-                  icon="log-in-outline"
-                  onPress={handleLogin}
-                />
+                <View style={styles.buttonContainer}>
+                  <AppButton
+                    theme="primary"
+                    title="Sign In"
+                    icon="log-in-outline"
+                    onPress={handleLogin}
+                  />
+                </View>
               )}
             </View>
 
-            <Link href="/register" style={styles.link}>
-              Don't have an account? Sign Up
-            </Link>
+            <View style={styles.signupContainer}>
+              <Text style={styles.signupText}>
+                Don't have an account?
+              </Text>
+
+              <Link href="/register" style={styles.link}>
+                Sign Up
+              </Link>
+            </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -125,68 +171,168 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+
   keyboardView: {
     flex: 1,
   },
+
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
     paddingBottom: 40,
   },
+
   headerContainer: {
-    alignItems: 'flex-start',
-    marginTop: 20,
-    marginBottom: 16,
+    alignItems: 'center',
+    marginBottom: 8,
   },
+
+  welcomeSection: {
+    marginBottom: 20,
+  },
+
+  welcomeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: COLORS.secondary,
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 12,
+  },
+
+  welcomeBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: COLORS.card,
+  },
+
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 29,
+    fontWeight: '800',
     color: COLORS.textPrimary,
-    textAlign: 'left',
-    marginBottom: 4,
+    marginBottom: 5,
   },
+
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     lineHeight: 21,
     color: COLORS.textSecondary,
-    textAlign: 'left',
-    marginBottom: 32,
   },
-  form: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: 6,
-    marginTop: 10,
-  },
-  input: {
+
+  formCard: {
     backgroundColor: COLORS.card,
-    borderRadius: 10,
+    borderRadius: 22,
+    padding: 22,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: COLORS.textPrimary,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.10,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  error: {
-    fontSize: 14,
-    color: COLORS.danger,
-    textAlign: 'left',
-    marginTop: 12,
+
+  formHeader: {
+    marginBottom: 20,
+  },
+
+  formTitle: {
+    fontSize: 21,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
-  loader: {
-    marginVertical: 16,
+
+  formSubtitle: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
-  link: {
-    fontSize: 14,
-    color: COLORS.primary,
-    textAlign: 'center',
+
+  inputGroup: {
+    marginBottom: 15,
+  },
+
+  label: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.9,
+    color: COLORS.textPrimary,
+    marginBottom: 7,
+  },
+
+  input: {
+    backgroundColor: COLORS.background,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 15,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+
+  errorContainer: {
+    backgroundColor: '#F3E1DD',
+    borderWidth: 1,
+    borderColor: COLORS.danger,
+    borderRadius: 13,
+    padding: 12,
+    marginBottom: 8,
+  },
+
+  errorTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.danger,
+    marginBottom: 3,
+  },
+
+  error: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: COLORS.danger,
+  },
+
+  loaderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+
+  loaderText: {
+    fontSize: 13,
     fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginTop: 8,
+  },
+
+  buttonContainer: {
+    marginTop: 4,
+  },
+
+  signupContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+
+  signupText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginRight: 5,
+  },
+
+  link: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '800',
   },
 });
+

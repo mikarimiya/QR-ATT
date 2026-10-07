@@ -1,6 +1,12 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { COLORS } from '@/constants/colors';
 import { useAuth } from '@/lib/auth';
@@ -63,11 +69,22 @@ export default function HistoryScreen() {
     }, [load])
   );
 
+  const handleAttendancePress = (event: TeacherEventAttendance) => {
+    router.push({
+      pathname: '/attendance-details',
+      params: {
+        eventId: event.eventId,
+      },
+    });
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Attendance History</Text>
-        <Text style={styles.subtitle}>Loading records...</Text>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>Attendance History</Text>
+          <Text style={styles.subtitle}>Loading your records...</Text>
+        </View>
       </View>
     );
   }
@@ -75,17 +92,32 @@ export default function HistoryScreen() {
   if (role === 'teacher') {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Attendance History</Text>
+        <View style={styles.headingContainer}>
+          <Text style={styles.title}>Attendance History</Text>
+          <Text style={styles.subtitle}>
+            Monitor attendance for your events
+          </Text>
+        </View>
 
         {teacherEvents.length === 0 ? (
-          <Text style={styles.subtitle}>
-            No events yet. Create an event from the Teacher tab.
-          </Text>
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIcon}>
+              <Text style={styles.emptyIconText}>✓</Text>
+            </View>
+
+            <Text style={styles.emptyTitle}>No events yet</Text>
+
+            <Text style={styles.emptyText}>
+              Create an event from the Teacher tab to start monitoring
+              attendance.
+            </Text>
+          </View>
         ) : (
           <FlatList
             data={teacherEvents}
             keyExtractor={(item) => item.eventId}
             contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
             renderItem={({ item }) => {
               const summary = teacherSummaries.find(
                 (summary) => summary.eventId === item.eventId
@@ -94,45 +126,84 @@ export default function HistoryScreen() {
               const attendeeCount = summary?.attendeeCount ?? 0;
 
               return (
-                <View style={styles.card}>
-                  <Text style={styles.eventTitle}>{item.title}</Text>
+                <Pressable
+                  onPress={() => handleAttendancePress(item)}
+                  style={({ pressed }) => [
+                    styles.teacherCard,
+                    pressed && styles.cardPressed,
+                  ]}
+                >
+                  <View style={styles.cardHeader}>
+                    <View style={styles.cardAccent} />
 
-                  <Text style={styles.attendeeCount}>
-                    {attendeeCount} attendee
-                    {attendeeCount === 1 ? '' : 's'}
-                  </Text>
+                    <View style={styles.cardTitleContainer}>
+                      <Text style={styles.eventTitle}>{item.title}</Text>
 
-                  <Text style={styles.eventMeta}>{item.eventCode}</Text>
+                      <Text style={styles.eventCode}>
+                        {item.eventCode}
+                      </Text>
+                    </View>
+
+                    <View style={styles.countBadge}>
+                      <Text style={styles.countNumber}>
+                        {attendeeCount}
+                      </Text>
+
+                      <Text style={styles.countLabel}>
+                        ATTENDEES
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.cardDivider} />
 
                   {item.startTime ? (
-                    <Text style={styles.eventMeta}>
-                      Start: {formatDate(item.startTime)}
-                    </Text>
+                    <View style={styles.metaRow}>
+                      <Text style={styles.metaLabel}>START</Text>
+
+                      <Text style={styles.teacherMetaValue}>
+                        {formatDate(item.startTime)}
+                      </Text>
+                    </View>
                   ) : null}
 
-                  {item.attendees.length > 0 ? (
-                    <View style={styles.attendeesSection}>
-                      <Text style={styles.attendeesTitle}>Students</Text>
+                  <View style={styles.attendeesSection}>
+                    <Text style={styles.attendeesTitle}>
+                      Recent Students
+                    </Text>
 
-                      {item.attendees.map((attendee) => (
+                    {item.attendees.length > 0 ? (
+                      item.attendees.map((attendee) => (
                         <View
                           key={`${attendee.studentId}-${attendee.scannedAt}`}
                           style={styles.attendeeRow}
                         >
-                          <Text style={styles.eventMeta}>
+                          <View style={styles.studentDot} />
+
+                          <Text style={styles.studentId}>
                             {shortId(attendee.studentId)}
                           </Text>
 
-                          <Text style={styles.eventMeta}>
+                          <Text style={styles.studentTime}>
                             {formatDate(attendee.scannedAt)}
                           </Text>
                         </View>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text style={styles.eventMeta}>No students yet.</Text>
-                  )}
-                </View>
+                      ))
+                    ) : (
+                      <Text style={styles.noStudents}>
+                        No students have registered yet.
+                      </Text>
+                    )}
+                  </View>
+
+                  <View style={styles.cardFooter}>
+                    <Text style={styles.tapHint}>
+                      View attendance details
+                    </Text>
+
+                    <Text style={styles.arrow}>→</Text>
+                  </View>
+                </Pressable>
               );
             }}
           />
@@ -143,24 +214,67 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Attendance History</Text>
+      <View style={styles.headingContainer}>
+        <Text style={styles.title}>Attendance History</Text>
+
+        <Text style={styles.subtitle}>
+          Your registered school events
+        </Text>
+      </View>
 
       {studentRecords.length === 0 ? (
-        <Text style={styles.subtitle}>
-          No records yet. Scan a QR code to register your attendance.
-        </Text>
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIcon}>
+            <Text style={styles.emptyIconText}>✓</Text>
+          </View>
+
+          <Text style={styles.emptyTitle}>No attendance yet</Text>
+
+          <Text style={styles.emptyText}>
+            Scan an event QR code to register your attendance.
+          </Text>
+        </View>
       ) : (
         <FlatList
           data={studentRecords}
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.eventTitle}>{item.eventTitle}</Text>
-              <Text style={styles.eventMeta}>{item.eventId}</Text>
-              <Text style={styles.eventMeta}>
-                {formatDate(item.scannedAt)}
-              </Text>
+            <View style={styles.studentCard}>
+              <View style={styles.studentCardTop}>
+                <View style={styles.checkCircle}>
+                  <Text style={styles.checkText}>✓</Text>
+                </View>
+
+                <View style={styles.studentEventContainer}>
+                  <Text style={styles.eventTitleStudent}>
+                    {item.eventTitle}
+                  </Text>
+
+                  <Text style={styles.scannedText}>
+                    Attendance recorded
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.cardDividerStudent} />
+
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>EVENT ID</Text>
+
+                <Text style={styles.studentMetaValue}>
+                  {item.eventId}
+                </Text>
+              </View>
+
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>RECORDED</Text>
+
+                <Text style={styles.studentMetaValue}>
+                  {formatDate(item.scannedAt)}
+                </Text>
+              </View>
             </View>
           )}
         />
@@ -184,64 +298,305 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: 16,
+
+  headingContainer: {
+    marginBottom: 22,
   },
+
+  title: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
+  },
+
   subtitle: {
     fontSize: 14,
     color: COLORS.textSecondary,
-    textAlign: 'center',
     lineHeight: 20,
-    marginTop: 32,
+    marginTop: 5,
   },
+
   list: {
     paddingBottom: 24,
   },
-  card: {
-    backgroundColor: COLORS.card,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
+
+  teacherCard: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
     shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.16,
+    shadowRadius: 7,
+    elevation: 4,
+  },
+
+  studentCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 7,
     elevation: 3,
   },
+
+  cardPressed: {
+    opacity: 0.82,
+    transform: [{ scale: 0.985 }],
+  },
+
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  cardAccent: {
+    width: 5,
+    height: 48,
+    borderRadius: 5,
+    backgroundColor: COLORS.accent,
+    marginRight: 12,
+  },
+
+  cardTitleContainer: {
+    flex: 1,
+  },
+
   eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '800',
+    color: COLORS.textOnPrimary,
+    lineHeight: 23,
+  },
+
+  eventTitleStudent: {
+    fontSize: 17,
+    fontWeight: '800',
     color: COLORS.textPrimary,
-    marginBottom: 4,
+    lineHeight: 23,
   },
-  attendeeCount: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.primary,
+
+  eventCode: {
+    fontSize: 11,
+    color: COLORS.accent,
     marginTop: 4,
-    marginBottom: 4,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
-  eventMeta: {
-    fontSize: 13,
+
+  countBadge: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 64,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(250, 246, 237, 0.1)',
+  },
+
+  countNumber: {
+    fontSize: 21,
+    fontWeight: '800',
+    color: COLORS.textOnPrimary,
+  },
+
+  countLabel: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: COLORS.accent,
+    letterSpacing: 0.6,
+    marginTop: 2,
+  },
+
+  cardDivider: {
+    height: 1,
+    backgroundColor: 'rgba(197, 168, 128, 0.45)',
+    marginVertical: 16,
+  },
+
+  cardDividerStudent: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginVertical: 16,
+  },
+
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 9,
+  },
+
+  metaLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+    letterSpacing: 0.8,
+    marginRight: 12,
+  },
+
+  teacherMetaValue: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.textOnPrimary,
+    textAlign: 'right',
+  },
+
+  studentMetaValue: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.textPrimary,
+    textAlign: 'right',
+  },
+
+  attendeesSection: {
+    paddingTop: 2,
+  },
+
+  attendeesTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.accent,
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+
+  attendeeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+  },
+
+  studentDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.accent,
+    marginRight: 8,
+  },
+
+  studentId: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.textOnPrimary,
+  },
+
+  studentTime: {
+    fontSize: 10,
+    color: COLORS.textSecondary,
+  },
+
+  noStudents: {
+    fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
   },
-  attendeesSection: {
-    marginTop: 12,
-    paddingTop: 10,
+
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 14,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: 'rgba(197, 168, 128, 0.45)',
   },
-  attendeesTitle: {
-    fontSize: 14,
+
+  tapHint: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.accent,
+  },
+
+  arrow: {
+    fontSize: 20,
     fontWeight: '600',
-    color: COLORS.textPrimary,
-    marginBottom: 6,
+    color: COLORS.textOnPrimary,
   },
-  attendeeRow: {
-    marginTop: 6,
+
+  studentCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  checkCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+
+  checkText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.textOnPrimary,
+  },
+
+  studentEventContainer: {
+    flex: 1,
+  },
+
+  scannedText: {
+    fontSize: 11,
+    color: COLORS.secondary,
+    fontWeight: '700',
+    marginTop: 3,
+  },
+
+  emptyContainer: {
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    padding: 26,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginTop: 10,
+  },
+
+  emptyIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+
+  emptyIconText: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: COLORS.accent,
+  },
+
+  emptyTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginBottom: 7,
+  },
+
+  emptyText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });
+

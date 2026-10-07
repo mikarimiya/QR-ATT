@@ -22,20 +22,23 @@ export default function AppButton({
     return (
       <View style={styles.buttonOuter}>
         <Pressable
-          style={[
+          style={({ pressed }) => [
             styles.buttonInner,
             styles.primaryButton,
+            pressed && styles.pressedButton,
             disabled && styles.disabledButton,
           ]}
           onPress={onPress}
           disabled={disabled}
         >
-          <Ionicons
-            name={icon}
-            size={22}
-            color={COLORS.textOnPrimary}
-            style={styles.icon}
-          />
+          <View style={styles.iconContainer}>
+            <Ionicons
+              name={icon}
+              size={20}
+              color={COLORS.primary}
+            />
+          </View>
+
           <Text style={[styles.label, styles.primaryLabel]}>
             {title}
           </Text>
@@ -47,19 +50,22 @@ export default function AppButton({
   return (
     <View style={styles.buttonOuter}>
       <Pressable
-        style={[
+        style={({ pressed }) => [
           styles.buttonInner,
+          pressed && styles.pressedButton,
           disabled && styles.disabledButton,
         ]}
         onPress={onPress}
         disabled={disabled}
       >
-        <Ionicons
-          name={icon}
-          size={22}
-          color={COLORS.textSecondary}
-          style={styles.icon}
-        />
+        <View style={styles.iconContainerSecondary}>
+          <Ionicons
+            name={icon}
+            size={20}
+            color={COLORS.primary}
+          />
+        </View>
+
         <Text style={styles.label}>{title}</Text>
       </Pressable>
     </View>
@@ -71,32 +77,69 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 14,
   },
+
   buttonInner: {
-    borderRadius: 10,
+    minHeight: 56,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     backgroundColor: COLORS.card,
   },
+
   primaryButton: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
+    shadowColor: COLORS.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    elevation: 3,
   },
+
+  pressedButton: {
+    opacity: 0.82,
+    transform: [{ scale: 0.985 }],
+  },
+
   disabledButton: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
-  icon: {
-    paddingRight: 10,
+
+  iconContainer: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    marginRight: 10,
   },
+
+  iconContainerSecondary: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    marginRight: 10,
+  },
+
   label: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textPrimary,
+    letterSpacing: 0.1,
   },
+
   primaryLabel: {
     color: COLORS.textOnPrimary,
   },
